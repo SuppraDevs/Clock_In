@@ -1,0 +1,96 @@
+from flask import Flask, render_template, request, jsonify, redirect, url_for
+import sqlite3
+
+app = Flask(__name__)
+
+DATABASE = 'ponto.db'
+conn = sqlite3.connect('clock_in.db')
+conn.execute('''CREATE TABLE IF NOT EXISTS students (
+                    rfID varchar(100) NOT NULL,
+                    RAStudent int,
+                    nameStudent varchar (255),
+                    presenceStudent int,
+                    absenceStudent int,
+                    lateStudent int,
+                    isPresent tinyint(1) default 0,
+                    PRIMARY KEY (rfID)
+                )''')
+conn.execute('''CREATE TABLE IF NOT EXISTS entrance_table (
+                    idEntrance INTEGER PRIMARY KEY AUTOINCREMENT,
+                    timeEntrance TIMESTAMP,
+                    rfID varchar (100),
+                    FOREIGN KEY (rfID) REFERENCES students(rfID)
+                )''')
+conn.execute('''CREATE TABLE IF NOT EXISTS exit_table (
+                    idExit INTEGER PRIMARY KEY AUTOINCREMENT,
+                    timeExit TIMESTAMP,
+                    rfID varchar (100),
+                    FOREIGN KEY (rfID) REFERENCES students(rfID)
+                )''')
+conn.commit()
+conn.close()
+
+
+@app.route('/', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        ra = request.form['ra']
+        return redirect(url_for('registro', ra=ra))
+    return render_template('login.html')
+
+
+@app.route('/registro/<ra>')
+def registro(ra):
+    conn = sqlite3.connect(DATABASE)
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM students WHERE RAStudent = ?", (ra,))
+    student = cursor.fetchone()
+    if student:
+        rfID = student[0]
+        name = student[2]
+        presence = student[3]
+        absence = student[4]
+        late = student[5]
+        cursor.execute("SELECT COUNT(*) FROM entrance_table WHERE rfID = ?", (rfID,))
+        presence_count = cursor.fetchone()[0]
+        cursor.execute("SELECT COUNT(*) FROM exit_table WHERE rfID = ?", (rfID,))
+        absence_count = cursor.fetchone()[0]
+
+        cursor.execute("SELECT timeEntrance FROM entrance_table WHERE rfID = ? ORDER BY timeEntrance DESC LIMIT 10", (rfID,))
+        entrance_times = [row[0] for row in cursor.fetchall()]
+        cursor.execute("SELECT timeExit FROM exit_table WHERE rfID = ? ORDER BY timeExit DESC LIMIT 10", (rfID,))
+        exit_times = [row[0] for row in cursor.fetchall()]
+
+        conn.close()
+        return render_template('registro.html', name=name, presence=presence, absence=absence, late=late, presence_count=presence_count, absence_count=absence_count, entrance_times=entrance_times, exit_times=exit_times)
+    else:
+        conn.close()
+        return 'Aluno não encontrado'
+
+
+@app.route('/get_student_data/')
+def get_student_data():
+    ra = request.args.get('ra')
+    conn = sqlite3.connect(DATABASE)
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM students WHERE RAStudent = ?", (ra,))
+    student = cursor.fetchone()
+    if student:
+        rfID = student[0]
+        name = student[2]
+        presence = student[3]
+        absence = student[4]
+        late = student[5]
+        cursor.execute("SELECT COUNT(*) FROM entrance_table WHERE rfID = ?", (rfID,))
+        presence_count = cursor.fetchone()[0]
+        cursor.execute("SELECT COUNT(*) FROM exit_table WHERE rfID = ?", (rfID,))
+        absence_count = cursor.fetchone()[0]
+        conn.close()
+        return jsonify({'status': 'success', 'name': name, 'presence_count': presence_count, 'absence_count': absence_count})
+    else:
+        conn.close()
+        return jsonify({'status': 'error', 'message': 'Aluno não encontrado'})
+
+
+if __name__ == '__main__':
+    app.run(debug=True)
