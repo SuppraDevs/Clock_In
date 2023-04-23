@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>ClockIn - Registro</title>
+	<link rel="stylesheet" href="{{ url_for('static', filename='css/registro.css') }}">
+</head>
+<body>
+	<header>
+		<h1>ClockIn</h1>
+	</header>
+
+	<main>
+		<section>
+			<h2>Bem-vindo(a), {{ name }}</h2>
+			<div class="data">
+				<div>
+					<h3>Presenças</h3>
+					<p>{{ presence }}</p>
+				</div>
+				<div>
+					<h3>Faltas</h3>
+					<p>{{ absence }}</p>
+				</div>
+				<div>
+					<h3>Atrasos</h3>
+					<p>{{ late }}</p>
+				</div>
+			</div>
+			<div class="log">
+				<h3>Últimos 10 registros</h3>
+				<table>
+					<thead>
+						<tr>
+							<th>Data</th>
+							<th>Tipo</th>
+						</tr>
+					</thead>
+					<tbody>
+						{% for log in logs %}
+						<tr>
+							<td>{{ log[0] }}</td>
+							<td>{{ log[1] }}</td>
+						</tr>
+						{% endfor %}
+					</tbody>
+				</table>
+			</div>
+		</section>
+	</main>
+
+	<footer>
+		<p>&copy; 2023 ClockIn</p>
+	</footer>
+</body>
+</html>
