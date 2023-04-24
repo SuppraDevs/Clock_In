@@ -5,12 +5,12 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<title>ClockIn - Registro</title>
 	<link rel="stylesheet" href="{{ url_for('static', filename='css/registro.css') }}">
+	<link rel="shortcut icon" href="{{ url_for('static', filename='img/favicon.ico') }}">
 </head>
-<body>
+<body style="font-family: sans-serif;"> 
 	<header>
 		<h1>ClockIn</h1>
 	</header>
-
 	<main>
 		<section>
 			<h2>Bem-vindo(a), {{ name }}</h2>
@@ -33,15 +33,15 @@
 				<table>
 					<thead>
 						<tr>
-							<th>Data</th>
-							<th>Tipo</th>
+							<th>Entrada</th>
+							<th>Saída</th>
 						</tr>
 					</thead>
 					<tbody>
-						{% for log in logs %}
+						{% for absence_count in absence_counts %}
 						<tr>
-							<td>{{ log[0] }}</td>
-							<td>{{ log[1] }}</td>
+							<td>{{ absence_count }}</td>
+							<td>{{ absence_count }}</td>
 						</tr>
 						{% endfor %}
 					</tbody>
@@ -49,7 +49,6 @@
 			</div>
 		</section>
 	</main>
-
 	<footer>
 		<p>&copy; 2023 ClockIn</p>
 	</footer>

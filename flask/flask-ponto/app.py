@@ -3,7 +3,7 @@ import sqlite3
 
 app = Flask(__name__)
 
-DATABASE = 'ponto.db'
+DATABASE = 'clock_in.db'
 conn = sqlite3.connect('clock_in.db')
 conn.execute('''CREATE TABLE IF NOT EXISTS students (
                     rfID varchar(100) NOT NULL,
@@ -41,24 +41,24 @@ def login():
 
 @app.route('/registro/<ra>')
 def registro(ra):
-    conn = sqlite3.connect(DATABASE)
+    conn = sqlite3.connect('clock_in.db')
     cursor = conn.cursor()
-    cursor.execute("SELECT * FROM students WHERE RAStudent = ?", (ra,))
+    cursor.execute(f"SELECT * FROM students WHERE rfID = '{ra}'")
     student = cursor.fetchone()
-    if student:
+    if student is not None:
         rfID = student[0]
         name = student[2]
         presence = student[3]
         absence = student[4]
         late = student[5]
-        cursor.execute("SELECT COUNT(*) FROM entrance_table WHERE rfID = ?", (rfID,))
+        cursor.execute(f"SELECT COUNT(*) FROM entrance_table WHERE rfID = {rfID}")
         presence_count = cursor.fetchone()[0]
-        cursor.execute("SELECT COUNT(*) FROM exit_table WHERE rfID = ?", (rfID,))
+        cursor.execute(f"SELECT COUNT(*) FROM exit_table WHERE rfID = {rfID}")
         absence_count = cursor.fetchone()[0]
 
-        cursor.execute("SELECT timeEntrance FROM entrance_table WHERE rfID = ? ORDER BY timeEntrance DESC LIMIT 10", (rfID,))
+        cursor.execute(f"SELECT timeEntrance FROM entrance_table WHERE rfID = {rfID} ORDER BY timeEntrance DESC LIMIT 10")
         entrance_times = [row[0] for row in cursor.fetchall()]
-        cursor.execute("SELECT timeExit FROM exit_table WHERE rfID = ? ORDER BY timeExit DESC LIMIT 10", (rfID,))
+        cursor.execute(f"SELECT timeExit FROM exit_table WHERE rfID = {rfID} ORDER BY timeExit DESC LIMIT 10")
         exit_times = [row[0] for row in cursor.fetchall()]
 
         conn.close()
@@ -73,7 +73,7 @@ def get_student_data():
     ra = request.args.get('ra')
     conn = sqlite3.connect(DATABASE)
     cursor = conn.cursor()
-    cursor.execute("SELECT * FROM students WHERE RAStudent = ?", (ra,))
+    cursor.execute(f"SELECT * FROM students WHERE rfID = '{ra}'")
     student = cursor.fetchone()
     if student:
         rfID = student[0]
@@ -81,9 +81,9 @@ def get_student_data():
         presence = student[3]
         absence = student[4]
         late = student[5]
-        cursor.execute("SELECT COUNT(*) FROM entrance_table WHERE rfID = ?", (rfID,))
+        cursor.execute(f"SELECT COUNT(*) FROM entrance_table WHERE rfID = {rfID}")
         presence_count = cursor.fetchone()[0]
-        cursor.execute("SELECT COUNT(*) FROM exit_table WHERE rfID = ?", (rfID,))
+        cursor.execute(f"SELECT COUNT(*) FROM exit_table WHERE rfID = {rfID}")
         absence_count = cursor.fetchone()[0]
         conn.close()
         return jsonify({'status': 'success', 'name': name, 'presence_count': presence_count, 'absence_count': absence_count})
