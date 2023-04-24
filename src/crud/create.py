@@ -5,7 +5,7 @@ from functions import check_entrance, check_exit, format
 
 current_time = get_curr_time()
 current_time_list = current_time.split(' ')
-current_time_list = [0, "11:30:00"]
+# current_time_list = [0, "09:30:00"]
 
 
 def db_commit(sql):
@@ -38,13 +38,21 @@ def hit_point(rfID):
 
 # CALLED WHEN HIT
 def create_entrance(rfID):
-    # timer(rfID)
     presence, lateness = check_entrance(current_time_list[1])
     sql = [
         f"INSERT INTO entrance_table (timeEntrance, rfID) VALUES ('{current_time}', '{rfID}')",
         f"UPDATE students SET presenceStudent = {presence}, lateStudent = {lateness} WHERE rfID = {rfID}"
     ]
     db_commit(sql)
+
+    def exit_closure():
+        return hit_point(rfID)
+
+    def timer():
+        timer_variable = Timer(14400, exit_closure)
+        timer_variable.start()
+    
+    timer()
 
 
 def create_exit(rfID):
@@ -82,15 +90,3 @@ def update_gen_att(rfID):
         f"UPDATE general_attendance SET presenceStudent = {new_presence}, absenceStudent = {new_absence}, lateStudent = {new_late} WHERE rfID = {rfID}"
     ]
     db_commit(sql)
-
-# def exit_closure(rfID):
-#     return create_exit()
-
-
-# def timer(rfID):
-#     timer_variable = Timer(14400, create_exit)
-#     timer_variable.start()
-
-    
-def read_user():
-    ...
