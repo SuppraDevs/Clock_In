@@ -15,6 +15,10 @@ while True:
     lcd.cursor_pos = (0, 0)
     lcd.write_string(time.strftime("%H:%M:%S"))
 
+    # Exibe "Clock In" centralizado na segunda linha do display
+    lcd.cursor_pos = (1, 0)
+    lcd.write_string("{:^16}".format("Clock In"))
+
     # Verifica se um cartão RFID foi aproximado
     try:
         id, text = reader.read()
