@@ -6,26 +6,34 @@ app = Flask(__name__)
 DATABASE = 'clock_in.db'
 conn = sqlite3.connect('clock_in.db')
 conn.execute('''CREATE TABLE IF NOT EXISTS students (
-                    rfID varchar(100) NOT NULL,
-                    RAStudent int,
-                    nameStudent varchar (255),
-                    presenceStudent int,
-                    absenceStudent int,
-                    lateStudent int,
-                    isPresent tinyint(1) default 0,
-                    PRIMARY KEY (rfID)
-                )''')
+                rfID varchar(100) NOT NULL,
+                RAStudent int,
+                nameStudent varchar (255),
+                presenceStudent int,
+                absenceStudent int,
+                lateStudent int,
+                isPresent tinyint(1) default 0,
+                PRIMARY KEY (rfID)
+            )''')
 conn.execute('''CREATE TABLE IF NOT EXISTS entrance_table (
-                    idEntrance INTEGER PRIMARY KEY AUTOINCREMENT,
-                    timeEntrance TIMESTAMP,
-                    rfID varchar (100),
-                    FOREIGN KEY (rfID) REFERENCES students(rfID)
-                )''')
+                idEntrance INTEGER PRIMARY KEY AUTOINCREMENT,
+                timeEntrance TIMESTAMP,
+                rfID varchar (100),
+                FOREIGN KEY (rfID) REFERENCES students(rfID)
+            )''')
+conn.execute('''CREATE TABLE IF NOT EXISTS general_attendance (
+                rfID varchar(100) NOT NULL,
+                nameStudent varchar (255),
+                presenceStudent int,
+                absenceStudent int,
+                lateStudent int,
+                FOREIGN KEY (rfID) REFERENCES students(rfID)
+            )''')
 conn.execute('''CREATE TABLE IF NOT EXISTS exit_table (
-                    idExit INTEGER PRIMARY KEY AUTOINCREMENT,
-                    timeExit TIMESTAMP,
-                    rfID varchar (100),
-                    FOREIGN KEY (rfID) REFERENCES students(rfID)
+                idExit INTEGER PRIMARY KEY AUTOINCREMENT,
+                timeExit TIMESTAMP,
+                rfID varchar (100),
+                FOREIGN KEY (rfID) REFERENCES students(rfID)
                 )''')
 conn.commit()
 conn.close()
@@ -43,14 +51,14 @@ def login():
 def registro(ra):
     conn = sqlite3.connect('clock_in.db')
     cursor = conn.cursor()
-    cursor.execute(f"SELECT * FROM students WHERE rfID = '{ra}'")
+    cursor.execute(f"SELECT * FROM general_attendance WHERE rfID = '{ra}'")
     student = cursor.fetchone()
     if student is not None:
         rfID = student[0]
-        name = student[2]
-        presence = student[3]
-        absence = student[4]
-        late = student[5]
+        name = student[1]
+        presence = student[2]
+        absence = student[3]
+        late = student[4]
         cursor.execute(f"SELECT COUNT(*) FROM entrance_table WHERE rfID = {rfID}")
         presence_count = cursor.fetchone()[0]
         cursor.execute(f"SELECT COUNT(*) FROM exit_table WHERE rfID = {rfID}")
@@ -73,14 +81,14 @@ def get_student_data():
     ra = request.args.get('ra')
     conn = sqlite3.connect(DATABASE)
     cursor = conn.cursor()
-    cursor.execute(f"SELECT * FROM students WHERE rfID = '{ra}'")
+    cursor.execute(f"SELECT * FROM general_attendance WHERE rfID = '{ra}'")
     student = cursor.fetchone()
     if student:
         rfID = student[0]
-        name = student[2]
-        presence = student[3]
-        absence = student[4]
-        late = student[5]
+        name = student[1]
+        presence = student[2]
+        absence = student[3]
+        late = student[4]
         cursor.execute(f"SELECT COUNT(*) FROM entrance_table WHERE rfID = {rfID}")
         presence_count = cursor.fetchone()[0]
         cursor.execute(f"SELECT COUNT(*) FROM exit_table WHERE rfID = {rfID}")
