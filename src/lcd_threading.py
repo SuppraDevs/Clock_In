@@ -1,5 +1,5 @@
 from create import hit_point
-import time
+from time import sleep
 from datetime import datetime
 from RPLCD import CharLCD
 import RPi.GPIO as GPIO
@@ -21,10 +21,11 @@ list_id = []
 for i in result:
     list_id.append(*i)
 
-def display_time():
+def clock():
     while True:
+        lcd.cursor_pos = (0, 0)
         lcd.write_string(datetime.now().strftime('%b %d  %H:%M:%S\n'))
-        time.sleep(0.95)
+        sleep(0.95)
 
 def read_rfid():
     while True:
@@ -32,6 +33,7 @@ def read_rfid():
             id = leitorRfid.read_id()
             print("ID do aluno: ", id)
             lcd.clear()
+            lcd.write_string("Aproxime o cartao")
 
             if str(id) in list_id:
                 print(id)
@@ -40,18 +42,21 @@ def read_rfid():
                 result = con.cursor.fetchone()
 
                 hit_point(id)
-                lcd.write_string("Registro aceito!")
-                time.sleep(5)
+                lcd.clear()
+                lcd.write_string("Registro Aceito")
+                sleep(5)
                 lcd.clear()
             else:
+                lcd.clear()
                 lcd.write_string("Tag RFID nao permitida!")
-                time.sleep(5)
-            
+                sleep(5)
+                lcd.clear()
+                
         except:
-            time.sleep(1)
+            sleep(1)
 
-thread_time = threading.Thread(target=display_time)
-thread_rfid = threading.Thread(target=read_rfid)
+thread1 = threading.Thread(target=clock)
+thread2 = threading.Thread(target=read_rfid)
 
-thread_time.start()
-thread_rfid.start()
+thread1.start()
+thread2.start()
