@@ -1,5 +1,6 @@
 from create import hit_point
 from time import sleep
+import time
 from datetime import datetime
 from RPLCD import CharLCD
 import RPi.GPIO as GPIO
@@ -21,42 +22,40 @@ list_id = []
 for i in result:
     list_id.append(*i)
 
-def clock():
+print("Aproxime o cartao da leitora...")
+
+def clock_thread():
     while True:
         lcd.cursor_pos = (0, 0)
         lcd.write_string(datetime.now().strftime('%b %d  %H:%M:%S\n'))
         sleep(0.95)
 
-def read_rfid():
-    while True:
-        try:
-            id = leitorRfid.read_id()
-            print("ID do aluno: ", id)
+clock = threading.Thread(target=clock_thread)
+clock.start()
+
+while True:
+    try:
+        id = leitorRfid.read_id()
+        print("ID do aluno: ", id)
+        lcd.clear()
+        lcd.cursor_pos = (1, 0)
+        if str(id) in list_id:
+            print(id)
+            sql = f"SELECT nameStudent FROM students WHERE rfID = '{id}'"
+            con.cursor.execute(sql)
+            result = con.cursor.fetchone()
+
+            hit_point(id)
+            lcd.write_string(f"{result[0]} registrou")
+            time.sleep(2)
             lcd.clear()
-            lcd.write_string("Aproxime o cartao")
-
-            if str(id) in list_id:
-                print(id)
-                sql = f"SELECT nameStudent FROM students WHERE rfID = '{id}'"
-                con.cursor.execute(sql)
-                result = con.cursor.fetchone()
-
-                hit_point(id)
-                lcd.clear()
-                lcd.write_string("Registro Aceito")
-                sleep(5)
-                lcd.clear()
-            else:
-                lcd.clear()
-                lcd.write_string("Tag RFID nao permitida!")
-                sleep(5)
-                lcd.clear()
-                
-        except:
-            sleep(1)
-
-thread1 = threading.Thread(target=clock)
-thread2 = threading.Thread(target=read_rfid)
-
-thread1.start()
-thread2.start()
+            lcd.cursor_pos = (1, 0)
+            lcd.write_string("Registro aceito")
+            time.sleep(2)
+            lcd.clear()
+        else:
+            lcd.write_string("Tag RFID nao permitida!")
+            time.sleep(2)
+    except Exception as e:
+        print("Erro: ", e)
+        sleep(1)
