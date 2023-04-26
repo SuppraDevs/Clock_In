@@ -18,7 +18,7 @@ def read_element(rfID, element, table='students'):
     sql = f"SELECT {element} FROM {table} WHERE rfID = {rfID}"
     con.cursor.execute(sql)
     result = con.cursor.fetchall()
-    print(result)
+    # print(result)
     return result[0][0]
 
 

@@ -39,9 +39,3 @@ def check_entrance(time_entrance):
 def check_exit(time_exit):
     abscense, _ = check_time(time_exit)
     return abscense
-
-
-""" def timer():
-    timer_variable = Timer(14400, create_exit)
-    timer_variable.start()
-"""
