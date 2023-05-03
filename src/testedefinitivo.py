@@ -39,12 +39,14 @@ while True:
         print("ID do aluno: ", id)
         lcd.clear()
         lcd.cursor_pos = (1, 0)
+        date_time_now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         if str(id) in list_id:
             sql = f"SELECT nameStudent FROM students WHERE rfID = '{id}'"
             con.cursor.execute(sql)
             result = con.cursor.fetchone()
 
-            hit_point(id)
+            hit_point(id, date_time_now)
+            print(date_time_now)
             lcd.write_string(f"{result[0]}")
             time.sleep(2)
             lcd.clear()
