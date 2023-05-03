@@ -7,11 +7,11 @@
 	<link rel="stylesheet" href="{{ url_for('static', filename='css/registro.css') }}">
 	<link rel="shortcut icon" href="{{ url_for('static', filename='img/favicon.ico') }}">
 </head>
-<body style="font-family: sans-serif;"> 
+<body style="font-family: sans-serif; height: 97vh;"> 
 	<header>
 		<h1>ClockIn</h1>
 	</header>
-	<main>
+	<main style="height: calc(100vh - 160px);">
 		<section>
 			<h2>Bem-vindo(a), {{ name }}</h2>
 			<div class="data">
@@ -27,25 +27,6 @@
 					<h3>Atrasos</h3>
 					<p>{{ late }}</p>
 				</div>
-			</div>
-			<div class="log">
-				<h3>Últimos 10 registros</h3>
-				<table>
-					<thead>
-						<tr>
-							<th>Entrada</th>
-							<th>Saída</th>
-						</tr>
-					</thead>
-					<tbody>
-						{% for absence_count in absence_counts %}
-						<tr>
-							<td>{{ absence_count }}</td>
-							<td>{{ absence_count }}</td>
-						</tr>
-						{% endfor %}
-					</tbody>
-				</table>
 			</div>
 		</section>
 	</main>
