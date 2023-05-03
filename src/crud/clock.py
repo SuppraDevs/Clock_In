@@ -1,6 +1,7 @@
 from datetime import datetime
 
 
+
 def get_curr_time():
     # datetime object containing current date and time
     now = datetime.now()

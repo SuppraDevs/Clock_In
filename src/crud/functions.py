@@ -11,22 +11,22 @@ def check_time(time_user):
     value = 0
     #  and time_user < format("11:30:00")
     
-    if time_user > format("10:45:00") and time_user < format("11:30:00"):
+    if time_user >= format("10:45:00") and time_user < format("11:30:00"):
         value = 1
-    elif time_user > format("10:45:00"):
-        pass
-    elif time_user > format("10:00:00"):
+    elif time_user >= format("10:45:00"):
+        value = 0
+    elif time_user >= format("10:00:00"):
         value = 1
-    elif time_user > format("09:00:00"):
+    elif time_user >= format("09:00:00"):
         value = 2
-    elif time_user > format("08:15:00"):
+    elif time_user >= format("08:15:00"):
         value = 3
-    elif time_user > format("07:45:00"):
+    elif time_user >= format("07:45:00"):
         value = 4
-    elif time_user > format("07:30:00"):
-        lateness = 1 
+    elif time_user >= format("07:31:00"):
+        lateness = 1
         value = 5
-    elif format("07:25:00") <= time_user <= format("07:30:00"):
+    elif format("07:25:00") <= time_user < format("07:31:00"):
         value = 5
     return value, lateness
 

@@ -1,11 +1,14 @@
 from threading import Timer
 import connect as con
 from clock import get_curr_time
+from datetime import datetime
 from functions import check_entrance, check_exit, format
 
-current_time = get_curr_time()
-current_time_list = current_time.split(' ')
-# current_time_list = [0, "09:30:00"]
+# current_time = get_curr_time()
+# # current_time = '2023-05-03 11:31:00'
+# print(current_time)
+# current_time_list = current_time.split(' ')
+# # current_time_list = [0, "07:27:00"]
 
 
 def db_commit(sql):
@@ -18,26 +21,31 @@ def read_element(rfID, element, table='students'):
     sql = f"SELECT {element} FROM {table} WHERE rfID = {rfID}"
     con.cursor.execute(sql)
     result = con.cursor.fetchall()
-    # print(result)
     return result[0][0]
 
 
-def hit_point(rfID):
+def hit_point(rfID, current_time):
+    # current_time = get_curr_time()
+    # current_time = '2023-05-03 11:31:00'
+    current_time_list = current_time.split(' ')
+    # current_time_list = [0, "07:27:00"]
+
     presence = read_element(rfID, 'isPresent')
 
     if presence == 1:
         presence = 0
-        create_exit(rfID)
+        create_exit(rfID, current_time_list, current_time)
     elif format(current_time_list[1]) >= format("07:25:00"):
         presence = 1
-        create_entrance(rfID)
+        create_entrance(rfID, current_time_list, current_time)
 
     sql = [f"UPDATE students SET isPresent = {presence} WHERE rfID = {rfID}"]
-    db_commit(sql)        
+    db_commit(sql)
+    return current_time, current_time_list      
 
 
 # CALLED WHEN HIT
-def create_entrance(rfID):
+def create_entrance(rfID, current_time_list, current_time):
     presence, lateness = check_entrance(current_time_list[1])
     sql = [
         f"INSERT INTO entrance_table (timeEntrance, rfID) VALUES ('{current_time}', '{rfID}')",
@@ -52,14 +60,14 @@ def create_entrance(rfID):
         timer_variable = Timer(14400, exit_closure)
         timer_variable.start()
     
-    timer()
+    # timer()
 
 
-def create_exit(rfID):
+def create_exit(rfID, current_time_list, current_time):
     abscense = check_exit(current_time_list[1]) 
     presence = read_element(rfID, 'presenceStudent')
 
-    new_presence = int(presence) - int(abscense)
+    new_presence = int(presence) - int(abscense) 
     new_abscence = 5 - int(new_presence)
 
     sql = [
